@@ -1,0 +1,10 @@
+WITH WorkHistoryWithShipmentIndex AS (
+    SELECT egg1.dbo.Shipment.Id AS ShipmentId, logistics.Logistics.Work_HistoryWithCurrent.*
+    FROM logistics.Logistics.Work_HistoryWithCurrent
+    JOIN logistics.Logistics.Work_Index ON logistics.Logistics.Work_HistoryWithCurrent.Id = logistics.Logistics.Work_Index.SubjectId
+    JOIN egg1.dbo.Shipment ON logistics.Logistics.Work_Index.ValueStr COLLATE SQL_Latin1_General_CP1_CI_AS = egg1.dbo.Shipment.TransportTrackingRef COLLATE SQL_Latin1_General_CP1_CI_AS
+    WHERE [Key] = 'TrackingRef'
+)
+
+SELECT logistics.Logistics.decode(Operation) AS Operation, logistics.Logistics.decode(Subject) AS Subject FROM WorkHistoryWithShipmentIndex WHERE ShipmentId = 17135865
+ORDER BY SubjectLastUpdatedOn DESC

@@ -1,38 +1,10 @@
-WITH AddressChanges AS (    SELECT 
-        Id,
-        MappingResolutionStatus,
-        BuildingId,
-        SysStart,
-        SysEnd
-    FROM egg1.dbo.Address FOR SYSTEM_TIME ALL
-    WHERE SysStart <> SysEnd
-)
-SELECT
-    Id,
-    SysStart,
-    CASE MappingResolutionStatus
-        WHEN 0 THEN 'NotSent'
-        WHEN 1 THEN 'Pending'
-        WHEN 2 THEN 'Resolved'
-        WHEN 3 THEN 'AlreadyResolved'
-        WHEN 4 THEN 'UnableToResolve'
-        WHEN 5 THEN 'ResolvedFromAdmin'
-        WHEN 6 THEN 'EditedAndResolvedFromAdmin'
-        WHEN 7 THEN 'EditedAndUnresolvedFromAdmin'
-        WHEN 8 THEN 'ResolvedByCustomer'
-        WHEN 9 THEN 'ReportedAsWrongMappingAndPending'
-    END AS [Status],
-    BuildingId,SysEnd
-FROM AddressChanges
-WHERE Id = 5662116
-AND SysEnd > '2025-05-13 16:18:51.77'
-ORDER BY SysEnd DESC;
+SELECT * FROM mapping.AddressToBeResolved WHERE ClientRequestId = 'd8612e1b-7133-4b11-9b9b-d4de897ca3e7'
+SELECT * FROM dbo.Address WHERE ClientRequestId = 'd8612e1b-7133-4b11-9b9b-d4de897ca3e7'
+SELECT * FROM dbo.Address WHERE Id = 787759
 
+SELECT * FROM dbo.Address FOR SYSTEM_TIME ALL WHERE Id = 787759 AND SysEnd = '2025-06-02 05:43:06.82' ORDER BY SysStart DESC
 
-SELECT
-    logistics.logistics.decode(Operation) AS CtorOrAction,
-    logistics.logistics.decode(Subject) AS Subject,
-    SubjectlastUpdatedOn AS TransitionedOn
-FROM logistics.Logistics.Work_HistoryWithCurrent
-WHERE Id = '27739528'
-ORDER BY SubjectLastUpdatedOn DESC;
+SELECT * FROM dbo.Customer WHERE Id = 33181634
+
+SELECT * FROM dbo.Address FOR SYSTEM_TIME ALL WHERE Id = 787759 AND SysEnd = '2025-06-02 05:43:06.82' ORDER BY SysStart DESC
+
