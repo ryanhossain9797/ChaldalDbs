@@ -1,3 +1,5 @@
+DECLARE @ShipmentId INT = 17135865;
+
 WITH WorkHistoryWithShipmentIndex AS (
     SELECT egg1.dbo.Shipment.Id AS ShipmentId, logistics.Logistics.Work_HistoryWithCurrent.*
     FROM logistics.Logistics.Work_HistoryWithCurrent
@@ -5,6 +7,12 @@ WITH WorkHistoryWithShipmentIndex AS (
     JOIN egg1.dbo.Shipment ON logistics.Logistics.Work_Index.ValueStr COLLATE SQL_Latin1_General_CP1_CI_AS = egg1.dbo.Shipment.TransportTrackingRef COLLATE SQL_Latin1_General_CP1_CI_AS
     WHERE [Key] = 'TrackingRef'
 )
+SELECT logistics.Logistics.decode(Operation) AS Operation, logistics.Logistics.decode(Subject) AS Subject, SubjectLastUpdatedOn
+FROM WorkHistoryWithShipmentIndex
+WHERE ShipmentId = @ShipmentId
+ORDER BY SubjectLastUpdatedOn DESC;
 
-SELECT logistics.Logistics.decode(Operation) AS Operation, logistics.Logistics.decode(Subject) AS Subject FROM WorkHistoryWithShipmentIndex WHERE ShipmentId = 17135865
-ORDER BY SubjectLastUpdatedOn DESC
+SELECT *
+FROM egg1.dbo.Address FOR SYSTEM_TIME ALL
+WHERE Id = (SELECT ShippingAddressId FROM egg1.dbo.Shipment WHERE Id = @ShipmentId)
+ORDER BY SysStart DESC;
