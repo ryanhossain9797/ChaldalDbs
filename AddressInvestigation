@@ -12,7 +12,33 @@ FROM WorkHistoryWithShipmentIndex
 WHERE ShipmentId = @ShipmentId
 ORDER BY SubjectLastUpdatedOn DESC;
 
-SELECT *
-FROM egg1.dbo.Address FOR SYSTEM_TIME ALL
+WITH AddressChanges AS (
+    SELECT
+        Id,
+        MappingResolutionStatus,
+        BuildingId,
+        SysStart,
+        SysEnd
+    FROM egg1.dbo.Address FOR SYSTEM_TIME ALL
+    WHERE SysStart <> SysEnd
+)
+SELECT
+    Id,
+    SysStart,
+    CASE MappingResolutionStatus
+        WHEN 0 THEN 'NotSent'
+        WHEN 1 THEN 'Pending'
+        WHEN 2 THEN 'Resolved'
+        WHEN 3 THEN 'AlreadyResolved'
+        WHEN 4 THEN 'UnableToResolve'
+        WHEN 5 THEN 'ResolvedFromAdmin'
+        WHEN 6 THEN 'EditedAndResolvedFromAdmin'
+        WHEN 7 THEN 'EditedAndUnresolvedFromAdmin'
+        WHEN 8 THEN 'ResolvedByCustomer'
+        WHEN 9 THEN 'ReportedAsWrongMappingAndPending'
+    END AS [Status],
+    BuildingId,SysEnd
+FROM AddressChanges
 WHERE Id = (SELECT ShippingAddressId FROM egg1.dbo.Shipment WHERE Id = @ShipmentId)
+AND SysEnd > '2025-06-15 07:18:33.8787868 +00:00'
 ORDER BY SysStart DESC;
