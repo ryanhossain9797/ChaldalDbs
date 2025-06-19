@@ -1,11 +1,23 @@
 DECLARE @ShipmentId INT = 17135865;
+DECLARE @MinSubjectLastUpdatedOn DATETIME;
+
+-- Populate the minimum SubjectLastUpdatedOn for the shipment
+SELECT @MinSubjectLastUpdatedOn = MIN(SubjectLastUpdatedOn)
+FROM (
+    SELECT egg1.dbo.Shipment.Id AS ShipmentId, logistics.Logistics.Work_HistoryWithCurrent.*
+    FROM logistics.Logistics.Work_HistoryWithCurrent
+    JOIN logistics.Logistics.Work_Index ON logistics.Logistics.Work_HistoryWithCurrent.Id = logistics.Logistics.Work_Index.SubjectId
+    JOIN egg1.dbo.Shipment ON logistics.Logistics.Work_Index.ValueStr COLLATE SQL_Latin1_General_CP1_CI_AS = egg1.dbo.Shipment.ShipmentTag COLLATE SQL_Latin1_General_CP1_CI_AS
+    WHERE [Key] = 'MerchantRefId'
+) AS WorkHistoryWithShipmentIndex
+WHERE ShipmentId = @ShipmentId;
 
 WITH WorkHistoryWithShipmentIndex AS (
     SELECT egg1.dbo.Shipment.Id AS ShipmentId, logistics.Logistics.Work_HistoryWithCurrent.*
     FROM logistics.Logistics.Work_HistoryWithCurrent
     JOIN logistics.Logistics.Work_Index ON logistics.Logistics.Work_HistoryWithCurrent.Id = logistics.Logistics.Work_Index.SubjectId
-    JOIN egg1.dbo.Shipment ON logistics.Logistics.Work_Index.ValueStr COLLATE SQL_Latin1_General_CP1_CI_AS = egg1.dbo.Shipment.TransportTrackingRef COLLATE SQL_Latin1_General_CP1_CI_AS
-    WHERE [Key] = 'TrackingRef'
+    JOIN egg1.dbo.Shipment ON logistics.Logistics.Work_Index.ValueStr COLLATE SQL_Latin1_General_CP1_CI_AS = egg1.dbo.Shipment.ShipmentTag COLLATE SQL_Latin1_General_CP1_CI_AS
+    WHERE [Key] = 'MerchantRefId'
 )
 SELECT logistics.Logistics.decode(Operation) AS Operation, logistics.Logistics.decode(Subject) AS Subject, SubjectLastUpdatedOn
 FROM WorkHistoryWithShipmentIndex
@@ -15,6 +27,7 @@ ORDER BY SubjectLastUpdatedOn DESC;
 WITH AddressChanges AS (
     SELECT
         Id,
+        ActionByCustomerId,
         MappingResolutionStatus,
         BuildingId,
         SysStart,
@@ -24,6 +37,7 @@ WITH AddressChanges AS (
 )
 SELECT
     Id,
+    ActionByCustomerId,
     SysStart,
     CASE MappingResolutionStatus
         WHEN 0 THEN 'NotSent'
@@ -40,5 +54,5 @@ SELECT
     BuildingId,SysEnd
 FROM AddressChanges
 WHERE Id = (SELECT ShippingAddressId FROM egg1.dbo.Shipment WHERE Id = @ShipmentId)
-AND SysEnd > '2025-06-15 07:18:33.8787868 +00:00'
+AND SysEnd > @MinSubjectLastUpdatedOn
 ORDER BY SysStart DESC;
