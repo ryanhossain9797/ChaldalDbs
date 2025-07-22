@@ -27,3 +27,9 @@
 - Id is the same as dbo.Customer.Id
 - Has BadgeId as employee identifier
 - A common use case is to Get CustomerGuid from BadgeId by joining dbo.Employee and dbo.Customer on their Id
+
+# AddressToBeResolved
+- Inside the mapping.AddressToBeResolved table
+- Has a final resolution status in the Status column, This one is a string value unlike the dbo.Address table's Status column
+- Has ClientAddressId -> String but Points to the dbo.Address table's Id
+- Has a RequestedOn parameter that says when this was created
