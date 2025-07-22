@@ -10,7 +10,7 @@ This query shows the history of an address with a smart date formatting approach
 - Aligns all times by padding with spaces for consistent formatting
 
 ```sql
-WITH AddressChanges AS (    SELECT 
+WITH AddressChanges AS (    SELECT
         Id,
         MappingResolutionStatus,
         BuildingId,
@@ -48,6 +48,29 @@ ORDER BY SysEnd DESC;
 5. Uses ORDER BY SysEnd ASC in LAG to ensure first occurrence of a date shows the full datetime
 6. Final results are ordered by SysEnd DESC for most recent changes first
 
+
+## Address Investigation
+
+### Latest Resolution by Address
+```sql
+WITH MostRecentUnableToResolve AS (
+    SELECT * FROM (
+        SELECT
+            *,
+            ROW_NUMBER() OVER (
+                PARTITION BY ClientAddressId
+                ORDER BY RequestedOn DESC
+            ) AS rn
+        FROM mapping.AddressToBeResolved
+    ) AS utr
+    WHERE utr.rn = 1
+)
+SELECT a.Id, ar.Status, a.MappingResolutionStatus
+FROM MostRecentUnableToResolve ar
+JOIN dbo.Address a ON ar.ClientAddressId = a.Id
+```
+
+
 ## Subject History Table Queries
 
 ### Subject History with Decoded Operations
@@ -81,7 +104,7 @@ ORDER BY SubjectLastUpdatedOn DESC;
 ------------------------------------------------------------------*/
 GRANT USAGE ON DATABASE UNIVERSE            TO ROLE ENGINEERS;
 GRANT USAGE ON SCHEMA   UNIVERSE.PK         TO ROLE ENGINEERS;
- 
+
 /*-----------------------------------------------------------------
   2) Read-only access to every object that exists *right now*
 ------------------------------------------------------------------*/
@@ -91,7 +114,7 @@ GRANT USAGE  ON ALL FUNCTIONS     IN SCHEMA UNIVERSE.PK TO ROLE ENGINEERS;
 GRANT USAGE  ON ALL PROCEDURES    IN SCHEMA UNIVERSE.PK TO ROLE ENGINEERS;
 GRANT USAGE  ON ALL SEQUENCES     IN SCHEMA UNIVERSE.PK TO ROLE ENGINEERS;
 /* Add more object types if you use them (TASKS, STREAMS, FILE FORMATS …) */
- 
+
 /*-----------------------------------------------------------------
   3) Future-proof it—anything created later is granted automatically
 ------------------------------------------------------------------*/
@@ -102,3 +125,4 @@ GRANT USAGE  ON FUTURE FUNCTIONS  IN SCHEMA UNIVERSE.PK TO ROLE ENGINEERS;
 GRANT USAGE  ON FUTURE PROCEDURES IN SCHEMA UNIVERSE.PK TO ROLE ENGINEERS;
 GRANT USAGE  ON FUTURE SEQUENCES  IN SCHEMA UNIVERSE.PK TO ROLE ENGINEERS;
 ```
+
