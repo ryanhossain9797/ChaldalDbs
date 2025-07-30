@@ -33,3 +33,6 @@
 - Has a final resolution status in the Status column, This one is a string value unlike the dbo.Address table's Status column
 - Has ClientAddressId -> String but Points to the dbo.Address table's Id
 - Has a RequestedOn parameter that says when this was created
+
+# Building
+SELECT * FROM mapping.Building FOR SYSTEM_TIME ALL WHERE Id = 319747 ORDER BY ValidFrom DESC;
