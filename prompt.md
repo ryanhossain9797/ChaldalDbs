@@ -1,0 +1,1 @@
+Look at TableDefinitions.md and ExampleQueries.md for details about tables and example queries

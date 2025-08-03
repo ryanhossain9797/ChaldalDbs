@@ -1,7 +1,12 @@
+# Common Info
+All tables that have History tables can be queried using the FOR SYSTEM_TIME ALL syntax of msssql server, or only history excluding current state can be retrieved from the TableName_HISTORY table
+
 # Address
 - Inside the dbo.Address table
 - Has a history table with Address_HISTORY
 - History table columns are SysStart and SysEnd
+- Has a HexagonId which is a foreign key to dbo.Hexagon.Id. Hexagon can be used to find the warehouse of the address
+- Has a DeliveryAreaId which is a foreign key to dbo.DeliveryArea.Id. DeliveryArea can be used to find the Warehouse of the address as a fallback if the Hexagon is not present
 - Has columns that denote it's actual location like MappingResolutionStatus, BuildingId, Latitude, Longitude
 - The statuses are as follows
   0 = NotSent
@@ -13,7 +18,7 @@
   6 = EditedAndResolvedFromAdmin
   7 = EditedAndUnresolvedFromAdmin
   8 = ResolvedByCustomer
-  9 = ReportedAsWrongMappingAndPending
+  9 = ReportedAsWrongMappingAndPending //deprecated
 
 # Customer
 - Inside the dbo.Customer table
@@ -35,4 +40,19 @@
 - Has a RequestedOn parameter that says when this was created
 
 # Building
-SELECT * FROM mapping.Building FOR SYSTEM_TIME ALL WHERE Id = 319747 ORDER BY ValidFrom DESC;
+- Inside the mapping.Building table
+- Has a Latitude and Longitude
+- Is a History table with columns ValidFrom and ValidTo
+
+# Hexagon
+- We use Hexagons to figure out which Warehouse should deliver to the customer
+- Inside the dbo.Hexagon table
+- Has an Id
+- Hexagons are a way to represent a small location on the map
+- Each Hexagon Optionally belongs to a Warheouse via WarehouseId
+- Has a HexagonRef that's a lat long represented as an offset
+- Has a history table with Hexagon_HISTORY
+- History table columns are SysStart and SysEnd
+
+# DeliveryArea
+- Inside the dbo.DeliveryArea table
