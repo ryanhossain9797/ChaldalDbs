@@ -1,5 +1,19 @@
 # Example SQL Queries
 
+## Subject Table Queries
+
+### Find Tables to truncate for a given schema and subject name pattern
+```sql
+SELECT
+    'TRUNCATE TABLE ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) + ';' AS TruncateStatement
+FROM gis.INFORMATION_SCHEMA.TABLES
+WHERE
+    TABLE_SCHEMA = 'Gis'
+    AND TABLE_NAME LIKE 'Building[_]%'
+    AND TABLE_TYPE = 'BASE TABLE'  -- This ensures we only get actual tables, not views
+ORDER BY TABLE_NAME;
+```
+
 ## Temporal Table Queries
 
 ### Address History with Smart Date Formatting

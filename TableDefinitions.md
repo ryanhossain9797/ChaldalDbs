@@ -56,3 +56,15 @@ All tables that have History tables can be queried using the FOR SYSTEM_TIME ALL
 
 # DeliveryArea
 - Inside the dbo.DeliveryArea table
+
+# Order
+- Inside the dbo.Order table
+- Has a state transition history table called dbo.OrderStateTransition
+- Has a Status
+  values
+    New = 0,
+    VerificationRequired = 5,
+    Pending = 10,
+    Processing = 20,
+    Complete = 30,
+    Cancelled = 40
